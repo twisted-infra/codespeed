@@ -1,0 +1,9 @@
+#!/bin/bash
+
+PYTHONPATH=~/codespeed:$PYTHONPATH
+
+~pypy/bin/twistd \
+    --logfile ~/log/twistd.log \
+    --pidfile ~/run/twistd.pid \
+    --rundir ~/run \
+    --python ~/config/speedcenter.tac
