@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PYTHONPATH=~/codespeed:$PYTHONPATH
-
 ~pypy/bin/twistd \
     --logfile ~/log/twistd.log \
     --pidfile ~/run/twistd.pid \

@@ -15,7 +15,6 @@
 # limitations under the License.
 ##
 
-from twisted.python.modules import getModule
 from twisted.application.service import Application
 from twisted.application.internet import TCPServer
 from twisted.web.server import Site
@@ -23,10 +22,11 @@ from twisted.web.wsgi import WSGIResource
 from twisted.web.resource import Resource
 from twisted.internet import reactor
 
-speedcenter = getModule("speedcenter").filePath
-django = speedcenter.sibling("wsgi").child("django.wsgi")
-namespace = {"__file__": django.path}
-execfile(django.path, namespace, namespace)
+import os, sys
+sys.path.insert(0, os.path.expanduser('~/codespeed'))
+sys.path.insert(0, os.path.dirname(__file__))
+os.environ['DJANGO_SETTINGS_MODULE'] = 'local_settings'
+from django.core.handlers.wsgi import WSGIHandler
 
 class _HostResource(Resource):
 
@@ -67,6 +67,6 @@ class VHostMonsterResource(Resource):
 
 application = Application("SpeedCenter")
 resource = VHostMonsterResource(
-    WSGIResource(reactor, reactor.getThreadPool(), namespace["application"]))
-site = Site(resource, 'httpd.log')
+    WSGIResource(reactor, reactor.getThreadPool(), WSGIHandler()))
+site = Site(resource, os.path.expanduser('~/log/httpd.log'))
 TCPServer(8123, site, interface='127.0.0.1').setServiceParent(application)
