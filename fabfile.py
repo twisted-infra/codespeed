@@ -56,5 +56,21 @@ class Codespeed(service.Service):
                     'db.dump': temp,
                 }, localfile)
 
+    def task_restore(self, localfile):
+        msg = (
+            'The whole database will be replaced with the backup.\n'
+            'Do you want to proceed?'
+        )
+
+        print ''
+        if utils.confirm(msg):
+            with settings(user=self.serviceUser):
+                with utils.tempfile() as temp:
+                    archive.restore({
+                        'db.dump': temp,
+                    }, localfile)
+                    run('rm -f ~/data/codespeed.db')
+                    run('sqlite3 ~/data/codespeed.db <{}'.format(temp))
+
 
 addTasks(globals(), Codespeed('codespeed').getTasks())
