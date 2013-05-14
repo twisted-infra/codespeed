@@ -38,6 +38,15 @@ class Codespeed(service.Service):
             git.branch('https://github.com/twisted-infra/codespeed', self.configDir)
             git.branch('https://github.com/twisted-infra/codespeed-source', '~/codespeed')
 
+    def djangoAdmin(self, args):
+        with settings(user=self.serviceUser):
+            path = '~/config:~/codespeed:~/codespeed/speedcenter'
+            run('PYTHONPATH={}:$PYTHONPATH ~/.local/bin/django-admin.py {} '
+                '--settings=local_settings'.format(path, ' '.join(args)))
+
+    def task_syncdb(self):
+        self.djangoAdmin(['syncdb', '--noinput'])
+
     def task_update(self):
         """
         Update config and restart.
