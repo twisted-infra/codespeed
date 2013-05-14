@@ -64,8 +64,7 @@ class Codespeed(service.Service):
 
     def task_dump(self, localfile):
         """
-        Create a tarball containing all information not currently stored in
-        version control and download it to the given C{localfile}.
+        Dump codespeed database and download it to the given C{localfile}.
         """
         with settings(user=self.serviceUser):
             with utils.tempfile() as temp:
@@ -75,6 +74,9 @@ class Codespeed(service.Service):
                 }, localfile)
 
     def task_restore(self, localfile):
+        """
+        Restore codespeed database from the given C{localfile}.
+        """
         msg = 'The whole database will be replaced with the backup.'
 
         if utils.confirm(msg):
