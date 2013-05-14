@@ -57,12 +57,8 @@ class Codespeed(service.Service):
                 }, localfile)
 
     def task_restore(self, localfile):
-        msg = (
-            'The whole database will be replaced with the backup.\n'
-            'Do you want to proceed?'
-        )
+        msg = 'The whole database will be replaced with the backup.'
 
-        print ''
         if utils.confirm(msg):
             with settings(user=self.serviceUser):
                 with utils.tempfile() as temp:
