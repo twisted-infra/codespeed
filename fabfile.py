@@ -4,7 +4,7 @@ Support for benchmark reporting.
 
 from fabric.api import run, settings, env
 
-from braid import git, cron, pip
+from braid import git, cron, pip, archive, utils
 from braid.twisted import service
 from braid.tasks import addTasks
 
@@ -62,5 +62,28 @@ class Codespeed(service.Service):
         self.update()
         self.task_restart()
 
+    def task_dump(self, localfile):
+        """
+        Create a tarball containing all information not currently stored in
+        version control and download it to the given C{localfile}.
+        """
+        with settings(user=self.serviceUser):
+            with utils.tempfile() as temp:
+                run('sqlite3 ~/data/codespeed.db .dump >{}'.format(temp))
+                archive.dump({
+                    'db.dump': temp,
+                }, localfile)
+
+    def task_restore(self, localfile):
+        msg = 'The whole database will be replaced with the backup.'
+
+        if utils.confirm(msg):
+            with settings(user=self.serviceUser):
+                with utils.tempfile() as temp:
+                    archive.restore({
+                        'db.dump': temp,
+                    }, localfile)
+                    run('rm -f ~/data/codespeed.db')
+                    run('sqlite3 ~/data/codespeed.db <{}'.format(temp))
 
 addTasks(globals(), Codespeed('codespeed').getTasks())
