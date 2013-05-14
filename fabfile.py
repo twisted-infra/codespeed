@@ -4,7 +4,7 @@ Support for benchmark reporting.
 
 from fabric.api import run, settings
 
-from braid import git, cron, pip, archive
+from braid import git, cron, pip, archive, utils
 from braid.twisted import service
 from braid.tasks import addTasks
 
@@ -50,9 +50,11 @@ class Codespeed(service.Service):
         version control and download it to the given C{localfile}.
         """
         with settings(user=self.serviceUser):
-            archive.dump({
-                'db.dump': 'data/codespeed.db',
-            }, localfile)
+            with utils.tempfile() as temp:
+                run('sqlite3 ~/data/codespeed.db .dump >{}'.format(temp))
+                archive.dump({
+                    'db.dump': temp,
+                }, localfile)
 
 
 addTasks(globals(), Codespeed('codespeed').getTasks())
