@@ -2,7 +2,7 @@
 Support for benchmark reporting.
 """
 
-from fabric.api import run, settings
+from fabric.api import run, settings, env
 
 from braid import git, cron, pip
 from braid.twisted import service
@@ -29,6 +29,8 @@ class Codespeed(service.Service):
             pip.install('Django==1.2.7')
             self.update()
             cron.install(self.serviceUser, '{}/crontab'.format(self.configDir))
+            if env.get('installTestData'):
+                self.task_installTestData()
 
     def update(self):
         """
@@ -39,12 +41,18 @@ class Codespeed(service.Service):
             git.branch('https://github.com/twisted-infra/codespeed-source', '~/codespeed')
 
     def djangoAdmin(self, args):
+        """
+        Run django-admin with proper settings.
+        """
         with settings(user=self.serviceUser):
             path = '~/config:~/codespeed:~/codespeed/speedcenter'
             run('PYTHONPATH={}:$PYTHONPATH ~/.local/bin/django-admin.py {} '
                 '--settings=local_settings'.format(path, ' '.join(args)))
 
-    def task_syncdb(self):
+    def task_installTestData(self):
+        """
+        Create test db.
+        """
         self.djangoAdmin(['syncdb', '--noinput'])
 
     def task_update(self):
