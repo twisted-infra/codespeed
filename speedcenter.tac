@@ -15,6 +15,15 @@
 # limitations under the License.
 ##
 
+import os, sys
+
+codespeed = os.path.expanduser('~/codespeed')
+sys.path.insert(0, codespeed)
+sys.path.insert(0, os.path.join(codespeed, 'speedcenter'))
+sys.path.insert(0, os.path.dirname(__file__))
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'local_settings'
+
 from twisted.application.service import Application
 from twisted.application.internet import TCPServer
 from twisted.web.server import Site
@@ -22,18 +31,13 @@ from twisted.web.wsgi import WSGIResource
 from twisted.web.resource import Resource
 from twisted.internet import reactor
 
-import os, sys
-sys.path.insert(0, os.path.expanduser('~/codespeed'))
-sys.path.insert(0, os.path.dirname(__file__))
-os.environ['DJANGO_SETTINGS_MODULE'] = 'local_settings'
 from django.core.handlers.wsgi import WSGIHandler
 
-class _HostResource(Resource):
 
+class _HostResource(Resource):
     def __init__(self, wrapped):
         Resource.__init__(self)
         self.wrapped = wrapped
-
 
     def getChild(self, path, request):
         if ':' in path:
@@ -46,8 +50,7 @@ class _HostResource(Resource):
         request.path = '/'+'/'.join(request.postpath)
         request.uri = request.uri[prefixLen:]
         del request.prepath[:3]
-	return self.wrapped
-
+        return self.wrapped
 
 
 class VHostMonsterResource(Resource):
@@ -55,14 +58,12 @@ class VHostMonsterResource(Resource):
         Resource.__init__(self)
         self.wrapped = wrapped
 
-
     def getChild(self, path, request):
         if path == 'http':
             request.isSecure = lambda: 0
         elif path == 'https':
             request.isSecure = lambda: 1
         return _HostResource(self.wrapped)
-
 
 
 application = Application("SpeedCenter")

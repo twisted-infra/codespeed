@@ -9,6 +9,8 @@ from braid.twisted import service
 from braid.tasks import addTasks
 
 from braid import config
+
+
 __all__ = [ 'config' ]
 
 
@@ -23,10 +25,10 @@ class Codespeed(service.Service):
 
         with settings(user=self.serviceUser):
             run('/bin/ln -nsf {}/start {}/start'.format(self.configDir, self.binDir))
-            pip.install('django==1.2.7')
+            run('mkdir -p data')
+            pip.install('Django==1.2.7')
             self.update()
             cron.install(self.serviceUser, '{}/crontab'.format(self.configDir))
-
 
     def update(self):
         """
@@ -36,14 +38,12 @@ class Codespeed(service.Service):
             git.branch('https://github.com/twisted-infra/codespeed', self.configDir)
             git.branch('https://github.com/twisted-infra/codespeed-source', '~/codespeed')
 
-
     def task_update(self):
         """
         Update config and restart.
         """
         self.update()
         self.task_restart()
-
 
 
 addTasks(globals(), Codespeed('codespeed').getTasks())
