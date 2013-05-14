@@ -14,6 +14,9 @@ The following fabric commands are available:
 
 install - Create user and install configuration.
 update - Updates the configuration and restarts the server.
+dump:<dump> - Dump database to file.
+restore:<dump> - Restore database from file.
+installTestData - Create an empty database for testing.
 start - Start server.
 stop - Stop server.
 restart - Restart the server.
