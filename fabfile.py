@@ -25,7 +25,7 @@ class Codespeed(service.Service):
 
         with settings(user=self.serviceUser):
             run('/bin/ln -nsf {}/start {}/start'.format(self.configDir, self.binDir))
-            run('mkdir -p data')
+            run('mkdir -p ~/data')
             pip.install('Django==1.2.7')
             self.update()
             cron.install(self.serviceUser, '{}/crontab'.format(self.configDir))
