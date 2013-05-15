@@ -86,6 +86,6 @@ class Codespeed(service.Service):
                         'db.dump': temp,
                     }, localfile)
                     run('rm -f ~/data/codespeed.db')
-                    run('sqlite3 ~/data/codespeed.db <{}'.format(temp))
+                    run('sqlite3 ~/data/codespeed.db ".read {}"'.format(temp))
 
 addTasks(globals(), Codespeed('codespeed').getTasks())
