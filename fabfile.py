@@ -68,7 +68,7 @@ class Codespeed(service.Service):
         """
         with settings(user=self.serviceUser):
             with utils.tempfile() as temp:
-                run('sqlite3 ~/data/codespeed.db .dump >{}'.format(temp))
+                run('/usr/bin/sqlite3 ~/data/codespeed.db .dump >{}'.format(temp))
                 archive.dump({
                     'db.dump': temp,
                 }, localfile)
@@ -85,7 +85,7 @@ class Codespeed(service.Service):
                     archive.restore({
                         'db.dump': temp,
                     }, localfile)
-                    run('rm -f ~/data/codespeed.db')
-                    run('sqlite3 ~/data/codespeed.db ".read {}"'.format(temp))
+                    run('/bin/rm -f ~/data/codespeed.db')
+                    run('/usr/bin/sqlite3 ~/data/codespeed.db ".read {}"'.format(temp))
 
 addTasks(globals(), Codespeed('codespeed').getTasks())
