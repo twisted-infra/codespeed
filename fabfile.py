@@ -21,12 +21,12 @@ class Codespeed(service.Service):
         Install codespeed, a benchmark reporting tool
         """
         # Bootstrap a new service environment
-        self.bootstrap()
+        self.bootstrap(python='system')
 
         with settings(user=self.serviceUser):
             run('/bin/ln -nsf {}/start {}/start'.format(self.configDir, self.binDir))
             run('mkdir -p ~/data')
-            pip.install('Django==1.2.7')
+            pip.install('Django==1.2.7', python='system')
             self.update()
             cron.install(self.serviceUser, '{}/crontab'.format(self.configDir))
             if env.get('installTestData'):
