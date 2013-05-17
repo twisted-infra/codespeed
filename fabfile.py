@@ -92,21 +92,19 @@ class Codespeed(service.Service):
                 run('/usr/bin/sqlite3 ~/data/codespeed.db .dump >{}'.format(temp))
                 archive.dump({
                     'db.dump': temp,
-                    'secret_key.py': 'config/secret_key.py',
                 }, localfile)
 
     def task_restore(self, localfile):
         """
         Restore codespeed database from the given C{localfile}.
         """
-        msg = 'The database and the SECRET_KEY will be replaced with the backup.'
+        msg = 'The whole database will be replaced with the backup.'
 
         if utils.confirm(msg):
             with settings(user=self.serviceUser):
                 with utils.tempfile() as temp:
                     archive.restore({
                         'db.dump': temp,
-                        'secret_key.py': 'config/secret_key.py',
                     }, localfile)
                     run('/bin/rm -f ~/data/codespeed.db')
                     run('/usr/bin/sqlite3 ~/data/codespeed.db ".read {}"'.format(temp))
