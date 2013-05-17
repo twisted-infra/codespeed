@@ -1,8 +1,10 @@
 """
 Support for benchmark reporting.
 """
+from StringIO import StringIO
+import random
 
-from fabric.api import run, settings, env
+from fabric.api import run, settings, env, put
 
 from braid import git, cron, pip, archive, utils
 from braid.twisted import service
@@ -31,6 +33,25 @@ class Codespeed(service.Service):
             cron.install(self.serviceUser, '{}/crontab'.format(self.configDir))
             if env.get('installTestData'):
                 self.task_installTestData()
+            self.task_generateSecretKey()
+
+    def task_generateSecretKey(self):
+        """
+        Generate a new C{SECRET_KEY} and save it in the settings file.
+        """
+        with settings(user=self.serviceUser):
+            if utils.succeeds('ls {}/secret_key.py'.format(self.configDir)):
+                execute = utils.confirm('This will replace the current secret '
+                                        'key with a newly generated one.')
+            else:
+                execute = True
+
+            if execute:
+                chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+                secret = ''.join([random.choice(chars) for i in range(50)])
+                setting = StringIO("SECRET_KEY = '{}'\n".format(secret))
+                put(setting, '{}/secret_key.py'.format(self.configDir),
+                    mode=0600)
 
     def update(self):
         """
