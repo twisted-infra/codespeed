@@ -6,7 +6,7 @@ import random
 
 from fabric.api import run, settings, env, put
 
-from braid import git, cron, pip, archive, utils
+from braid import git, cron, pip, archive, utils, package
 from braid.twisted import service
 from braid.tasks import addTasks
 
@@ -24,6 +24,8 @@ class Codespeed(service.Service):
         """
         # Bootstrap a new service environment
         self.bootstrap(python='system')
+
+        package.install(['python-svn'])
 
         with settings(user=self.serviceUser):
             run('/bin/ln -nsf {}/start {}/start'.format(self.configDir, self.binDir))
